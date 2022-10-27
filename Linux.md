@@ -4,6 +4,7 @@
 
 ```shell
 sudo -i
+sudo s
 
 su - zhougy
 ```
