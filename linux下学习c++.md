@@ -1,4 +1,6 @@
-在配置c++编译环境的时候需要安装gcc包，可能会出现安装不成功的情况
+# cmake
+
+## 在配置c++编译环境的时候需要安装gcc包，可能会出现安装不成功的情况
 
 解决方案：
 
@@ -20,4 +22,51 @@ deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted
 sudo apt-get update
 ```
 
-解决
+## xshell连接不上linux可能的问题
+
+```
+可能是linux系统下没有安装ssh
+
+
+#查看ssh服务安装情况
+rpm -qa | grep ssh 
+#未安装使用命令安装
+sudo apt install ssh
+
+即可解决
+```
+
+## 需要安装的包
+
+```
+gcc cmake g++
+```
+
+## 编译cmake
+
+```
+cmake .		进行编译，为了生成Makefile文件
+make		最终使用Makefile文件进行编译
+
+cmake .. 表示编译上一级目录
+```
+
+```
+编译每一个文件夹下面的文件都需要有一个CMakeList.txt文件
+```
+
+```
+删除CMakeList.txt文件里面的所有内容
+echo "" > CMakeList.txt
+```
+
+```
+如果想重新生成main，输入make clean就可以删除main这个elf文件。
+```
+
+```
+project (hello)
+
+set(SRC_LIST main.cpp ./testFun.cpp)
+```
+
