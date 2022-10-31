@@ -18,3 +18,17 @@ plt.show()  # 显示
 
 ```
 
+```python
+import dgl
+import torch
+import torch.nn as nn
+import networkx as nx
+import matplotlib.pyplot as plt
+
+src, dst = torch.tensor([0, 1, 2, 3]), torch.tensor([3, 4, 5, 6])
+g = dgl.graph((src, dst))
+g = g.to_networkx().to_undirected()
+nx.draw(g)
+plt.show()
+```
+
