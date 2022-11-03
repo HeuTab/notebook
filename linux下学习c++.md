@@ -215,10 +215,6 @@ add_executable (main ${SRC_LIST})
 
 
 
-
-
-
-
 常见c++厂商
 
 | 厂商 | C     | C++     | Fortran  |
@@ -231,3 +227,205 @@ g++ main.cpp -o a.out
 g++ main.cpp --std=c++11 -o a.out
 ```
 
+# cpp
+
+```
+函数的声明一般放到头文件中：*.h、*.hpp
+函数的实现一般放到源文件中：*.c、*.cpp
+```
+
+## 1.1. 编译和链接
+
+```c++
+main.cpp
+
+#include<iostream>
+#include "mul.hpp"
+
+using namespace std;
+
+int main()
+{
+	int a,b;
+	int result;
+	
+	cout << "Pick two integers:";
+	cin >> a;
+	cin >> b;
+	
+	result = mul(a,b);
+	
+	cout << "The result is " << result << endl;
+	
+	return 0;
+}
+```
+
+```
+mul.hpp
+
+#pragma once（这是一个预处理指令）
+
+int mul(int a,int b);
+```
+
+```
+#include "mul.hpp"
+int mul(int a,int b)
+{
+	return a * b;
+}
+```
+
+![](./image/0001.jpg)
+
+```
+编译和链接过程如下：
+main.cpp通过g++把它编译成main.o，.o文件为object的文件 是一个二进制文件
+-c的意思是：只编译不链接
+从object的文件生成可执行程序的步骤叫链接，实际上就是把两个二进制文件合并起来
+```
+
+常见三类错误：编译错误、链接错误、运行时错误
+
+## 1.2. Preprocessor（预处理）
+
+每个预处理指令占一行，而且只能占一行，如果预处理指令特别长，可以使用转义符转成一行
+
+```
+preprocessing instruction:
+define,undef,include,if,ifdef,ifndef,else,elif,endif,line,error,pragma
+```
+
+![](./image/0002.jpg)
+
+![](./image/0003.jpg)
+
+## 1.3. argc和argv参数
+
+```
+#include<iostream>
+using namespace std;
+int main(int argc,char **argv)
+{
+	for(int i = 0 ;i<argc;i++){
+		cout << i << ":" << argv[i] << endl;
+	}
+}
+```
+
+argc表示有几个参数，argv就是参数列表
+
+## 2.1数值初始化方式
+
+```
+int num;
+num = 10;
+
+int num = 10;
+
+int num (10);
+
+int num {10};
+```
+
+unsigned int 和 int 的区别
+
+```
+signed int 最高位为符号位，0表示整数，1表示负数。取值范围为：[-2^31,2^31-1]
+unsigned int 无符号位。取值范围为：[0,2^32-1]
+```
+
+查看在C/C++中每种数据类型占多少位：https://en.cppreference.com/w/cpp/language/types
+
+```
+查看数据类型占多少字节
+sizeof(int)
+```
+
+
+
+```
+since C++11 定义数据的方式
+#include<cstdint>
+int8_t
+int16_t
+int32_t
+int64_t
+uint8_t
+uint16_t
+uint32_t
+uint64_t
+```
+
+```
+some useful macros 查看最大数和最小数
+#include<cstdint>
+INT8_MIN
+INT16_MIN
+INT32_MIN
+INT64_MIN
+INT8_MAX
+INT16_MAX
+INT32_MAX
+INT64_MAX
+```
+
+
+
+![](./image/0004.jpg)
+
+```
+float f1 = 2.34E+10f;
+float f2 = f1 + 10;
+此时f2==f1，因为浮点数是间隔采样的，不能连续的表示一个数值，所以需要达到下一个采样点的界限才能真正的增长
+
+所以我们如果我们要比较两个浮点数的大小的话，最好用
+if(f1 == f2)//bad
+if(fabs(f1-f2) < FLT_EPSILON)//good
+```
+
+## 2.2 算数运算
+
+### 常数数值定义
+
+```
+95		//decimal
+0137	//octal
+0x5F	//hexadecimal
+
+95		//int
+95u		//unsigned int
+95l		//long
+95ul	//unsigned long
+95lu	//unsigned long
+
+3.14159	//3.14159
+6.02e23	//6.02*10^23
+1.6e-19	//1.6*10^-19
+3.0		//3.0
+
+6.02e23L	//long double
+6.02e23f	//float
+6.02e23		//double
+```
+
+### const type qualifier
+
+```
+const float PI = 3.1415923f;
+必须在定义的时候进行初始化；不能修改
+```
+
+### arithmetic operators
+
+| Operator name       | Syntax |
+| ------------------- | ------ |
+| bitwise NOT         | ~a     |
+| bitwise AND         | a & b  |
+| bitwise OR          | a \| b |
+| bitwise XOR         | a ^ b  |
+| bitwise left shift  | a << b |
+| bitwise right shift | a >> b |
+
+3.1

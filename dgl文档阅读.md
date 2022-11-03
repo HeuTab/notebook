@@ -312,3 +312,35 @@ DGLError: Cannot assign node feature "h" on device cpu to a graph on device cuda
 
 # 二、消息传递
 
+消息函数fai
+
+聚合函数rou
+
+更新函数pusai
+
+
+
+
+
+不懂apply_edges()函数的功能
+
+感觉apply_edges()函数的功能就是更新边上的消息，因为该函数的参数就是一个消息函数
+
+
+
+mailbox是个啥
+
+
+
+2.5节在异构图上进行消息传递，multi_update_all函数中etype_dict函数的具体含义
+$$
+
+$$
+
+
+
+$$
+
+$$
+
+
