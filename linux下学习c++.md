@@ -228,5 +228,6 @@ add_executable (main ${SRC_LIST})
 
 ```
 g++ main.cpp -o a.out
+g++ main.cpp --std=c++11 -o a.out
 ```
 
