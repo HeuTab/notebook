@@ -428,4 +428,11 @@ const float PI = 3.1415923f;
 | bitwise left shift  | a << b |
 | bitwise right shift | a >> b |
 
-3.1
+## 3.1 分支语句
+
+```
+factor = isPositive ? 1 : -1;
+factor = (isPOsitive) * 2 - 1;
+建议使用下面的用法，因为下面没有使用跳转语句，效率更加高效
+```
+

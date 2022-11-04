@@ -312,35 +312,60 @@ DGLError: Cannot assign node feature "h" on device cpu to a graph on device cuda
 
 # 二、消息传递
 
-消息函数fai
+消息函数 (message function) fai
 
-聚合函数rou
+聚合函数 (reduce function) rou
 
-更新函数pusai
-
-
+更新函数 (update function) pusai
 
 
 
-不懂apply_edges()函数的功能
+**apply_edges()函数的功能**
 
-感觉apply_edges()函数的功能就是更新边上的消息，因为该函数的参数就是一个消息函数
+感觉apply_edges()函数的功能就是更新边上的消息，因为该函数的参数就是一个消息函数，默认更新所有边的消息
+
+**apply_nodes()函数的功能**
+
+更新节点的信息，默认更新所有节点的信息
+
+**update_all()函数的功能**
+
+执行 消息函数->聚合函数(->更新函数)，完成一次消息传递过程吧
+
+**mailbox的理解**
+
+mailbox是一个存放所有节点收到的消息的信箱
+
+```
+import torch
+def reduce_func(nodes):
+	 return {'h': torch.sum(nodes.mailbox['m'], dim=1)}
+
+```
+
+**异质图中有一个canonical_etypes属性(调用方法为G.canonical_etypes)**
+
+里面存放的是所有的关系，可以通过调用此函数遍历所有的关系
+
+**2.5节在异构图上进行消息传递，multi_update_all函数中etype_dict函数的具体含义**
+
+是一个字典，每种关系对应一个update_all()函数
 
 
 
-mailbox是个啥
+第三章后半部分没看懂
 
 
 
-2.5节在异构图上进行消息传递，multi_update_all函数中etype_dict函数的具体含义
-$$
+# 四、图数据管道
 
-$$
-
+raw data：原始数据
 
 
-$$
 
-$$
+
+
+
+
 
 
