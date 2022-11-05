@@ -436,3 +436,145 @@ factor = (isPOsitive) * 2 - 1;
 建议使用下面的用法，因为下面没有使用跳转语句，效率更加高效
 ```
 
+## 4.1 string
+
+```
+string定义方式：
+char name1[] = "ABCD";
+const wchar_t[] s = L"ABCD";
+const char16_t[] s = u"ABCD";	//since c++11
+const char32_t[] s = U"ABCD";	//since c++11
+```
+
+```
+Copy:
+	char* strcpy(char* dest, const char* src);//存在长度溢出的情况
+	char* strncpy(char *dest, const char *src, size_t count);//count表示最多复制多少个字符，可以设置为min(dest,src)
+
+Concatenate:appends a copy of src to dest
+	char *strcat(char *dest, const char *src);
+	char *strncat(char *dest, const char *src, size_t count);
+	
+Compare:
+	int strcmp(const char *lhs, const char *rhs);
+```
+
+使用string class
+
+```
+string class provides functions to manipulate and examinate strings.
+std::string str1 = "Hello";
+std::string str2 = "SUSTech";
+std::string result = str1 + "," + str2;
+```
+
+```
+different types of strings
+std::string
+std::wstring
+std::u8string	//(C++20)
+std::u16string	//(C++11)
+std::u32string	//(C++11)
+```
+
+## 4.2 structures-unions-enumerations
+
+计算机为了存储的方便，它存储变量都是对齐的，在读写的时候效率更高
+
+如下图所示，左面的占12个字节，右面的占16个字节
+
+![](./image/0005.png)
+
+
+
+```
+struct Student{
+	int id;
+	bool male;
+	char label;
+	float height;
+}
+Student stu;
+stu.id = 123;
+
+No typedef needed in C++!
+```
+
+
+
+union
+
+```
+union ipv4address{
+	std::uint32_t address32;
+	std::uint8_t address8[4];
+}
+sizeof(union ipv4address) is 4;
+
+结构体中的所有成员共享同一个内存，也就是说上面中，那两个成员变量的首地址相同。如果他有多个成员变量，那么以最大的成员变量为准，就是整个union的大小。
+
+```
+
+enum
+
+```
+enum color {WHITE,BLACK,RED,GREEN,BLUE,YELLOW,NUM_COLORS};
+enum color pen_color = RED;
+
+```
+
+```
+enum datatype {TYPE_INT8=1,TYPE_INT16=2,TYPE_INT32=4,TYPE_INT64=8}
+struct Point{
+	enum datatype type;
+	union {
+		std::int8_t data8[3];
+		std::int16_t data16[3];
+		std::int32_t data32[3];
+		std::int64_t data64[3];
+	};
+};
+size_t datawidth(struct Point pt)
+{
+	return size_t(pt.type) * 3;
+}
+
+int64_t l2norm(struct Point pt)
+{
+	int64_t result = 0;
+	switch(pt.type)
+	{
+		case (TYPE_INT8):
+			result = abs(pt.data8[0])+
+					abs(pt.data8[1])+
+					abs(pt.data8[2]);
+			break;
+			....
+	}
+}
+```
+
+```
+struct Point point1 = {.type=TYPE_INT8, .data8={-2,3,4}};
+```
+
+typedef
+
+```
+typedef unsigned char vec3b[3];
+
+unsigned char color[3];
+vec3b color = {255,0,255};
+```
+
+
+
+
+
+
+
+
+
+# 目前还未搞懂的地方
+
+int8_t、int16_t的意思
