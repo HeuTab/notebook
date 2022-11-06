@@ -487,7 +487,7 @@ std::u32string	//(C++11)
 
 
 
-```
+```c++
 struct Student{
 	int id;
 	bool male;
@@ -523,7 +523,7 @@ enum color pen_color = RED;
 
 ```
 
-```
+```c++
 enum datatype {TYPE_INT8=1,TYPE_INT16=2,TYPE_INT32=4,TYPE_INT64=8}
 struct Point{
 	enum datatype type;
@@ -569,12 +569,229 @@ vec3b color = {255,0,255};
 
 
 
+## 5.1 pointer
+
+```c++
+结构体的指针：
+struct Student
+{
+	char name[4];
+	int born;
+	bool male;
+};
+Student stu = {"Yu", 2000, true};
+Student *pStu = &stu;
+
+p->member;
+(*p).member;
+```
+
+```c++
+Student students[128];
+Student * p0 = &students[0];
+
+// the same behavier
+students[0].born = 2000;
+p0->born = 2000;
+```
 
 
 
+## 5.2 Constant pointers
+
+```c++
+int num = 1;
+int another = 2;
+//You cannot change the value the p1 points to through p1
+const int * p1 = &num;
+*p1 = 2;//error
+num = 3;//okay
+
+//You cannot change value of p2 (address)
+int * const p2 = &num;
+*p2 = 3;//okay
+p2 = &another;//error
+
+//You cannot change either of them
+const int * const p3 = &num;
+```
+
+用处
+
+```c++
+//当我在一个函数里传入变量的时候，我不希望在函数中去修改这个变量就可以加const
+int foo(const char * p)
+{
+	//the value that p points to cannot be changed
+	
+	//play a trick?
+	char * p2 = p;//syntax error
+	//...
+	
+	return 0;
+}
+```
+
+## 5.3 pointer-array
+
+```
+&students
+students
+&students[0]
+这三个的值是相同的，都是数组的首地址
+
+Students * p = students;
+p[0].born = 2001;
+可以以这种方式修改值
+```
+
+
+
+在进行p+1的操作的时候，并不是把p偏移1个字节，而是偏移int个字节，这里的int代表的就是指针的类型int * p
+
+![](./image/0006.png)
+
+```
+下面这些是等价的
+int i = ...;
+int * p = ...;
+
+p[i] = 3;
+
+*(p+i) = 3;
+
+int * p2 = p+i; *p2 = 3;
+```
+
+可以把数组和指针很相似，但是数组是constant指针，只能指向那块内存 不能随便乱指，指针可以随便乱指。
+
+区别2就是sizeof的不同，数组的sizeof值为所有值所占的内存，指针的sizeof为存储地址所占的内存
+
+```
+int numbers[4] = {0,1,2,3};
+int *p = numbers;
+cout << sizeof(numbers) << endl;//4*sizeof(int)
+cout << sizeof(p) << endl;//4 or 8
+cout << sizeof(double *) << endl;//4 or 8
+```
+
+## 5.4 allocate memory C
+
+申请内存使用malloc（）
+
+```
+int *p = (int *)malloc(4);
+理论上来说是申请了4字节的空间，但是系统会分配16字节的空间，是因为要进行对齐，剩余的12字节就算是浪费了
+```
+
+释放内存
+
+```
+void free(void* ptr);
+
+
+p = (int *) malloc (sizeof(int));
+free(p)
+```
+
+```;
+浪费情况1：
+p = (int *) malloc (sizeof(int)*4);
+//...
+p = (int *) malloc (sizeof(int)*8);
+//...
+free(p);
+此时释放的内存为第二次申请的内存，第一次申请的内存由于没有被释放且没有指针了，所以也没有办法找到他了
+```
+
+```
+void foo()
+{
+	int *p = (int *) malloc (sizeof(int));
+	return;
+}
+当return之后，p为局部变量，return之后，p就消失了，作用域就到此为止了，这段内存也无法回收了，造成了内存泄漏
+```
+
+## 5.5 allocate memory C++
+
+申请内存使用new、new[]
+
+```c++
+//allocate an int, default initializer (do nothing)
+int *p1 = new int;
+//allocate an int, initialized to 0
+int *p2 = new int();
+//allocate an int, initialized to 5
+int *p3 = new int(5);
+//allocate an int, initialized to 0
+int *p4 = new int{};//C++11
+//allocate an int, initialized to 5
+int *p5 = new int{5};//C++11
+
+//allocate a Student object, default initializer
+Student *ps1 = new Student;
+//allocate a Student object, initialize the memebers
+Student *ps2 = new Student{"Yu", 2020, 1};
+```
+
+```c++
+//allocate 16 int, default initializer(do nothing)
+int *pa1 = new int[16];
+//allocate 16 int, zero initialized
+int *pa2 = new int[16]();
+//allocate 16 int, zero initialized
+int *pa3 = new int[16]{};//C++11
+//allocate 16 int, the first 3 element are initialized to 1,2,3, the rest 0
+int *pa4 = new int[16]{1,2,3};//C++11
+
+Student *psa1 = new Student[16];
+
+Student *psa2 = new Student[16]{{"li",2000,1},{"Yu",2001,1}}
+```
+
+释放内存
+
+```c++
+//deallocate memory
+delete p1;
+//deallocate memory
+delete ps1;
+
+//deallocate the memory of the array
+delete pa1;
+//deallocate the memory of the array
+delete []pa2;
+
+//deallocate the memory of the array, and call the destructor of the first element
+delete psa1;
+//deallocate the memory of the array, and call the destructors of all the elements
+delete []psa2;
+```
+
+**建议在释放数组的时候就统一使用 delete []psa2这种**
 
 
 
 # 目前还未搞懂的地方
 
 int8_t、int16_t的意思
+
+size_t：表示一个很大的整数？
+
+# 杂
+
+```
+宏是不可以换行的
+
+#define .......
+可以使用 \ 进行换行
+例子：
+#define PRINT_ARRAY(array, n) \
+for(int idx = 0;idx < (n);idx++) \
+	cout << "array[" << idx << "] = " << (array)[idx] << endl;
+	
+上面(a)加括号的意义就是防止传入一些运算符之类的东西，影响运算级
+记住在宏里面参数都加括号就行了
+```
+
