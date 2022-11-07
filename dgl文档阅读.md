@@ -324,6 +324,43 @@ DGLError: Cannot assign node feature "h" on device cpu to a graph on device cuda
 
 感觉apply_edges()函数的功能就是更新边上的消息，因为该函数的参数就是一个消息函数，默认更新所有边的消息
 
+理解apply_edges()：此部分代码粘贴自5.2节
+
+```python
+import dgl.function as fn
+class DotProductPredictor(nn.Module):
+    def forward(self, graph, h):
+        # h contains the node representations computed from the GNN defined
+        # in the node classification section (Section 5.1).
+        with graph.local_scope():
+            graph.ndata['h'] = h
+            graph.apply_edges(fn.u_dot_v('h', 'h', 'score'))
+            return graph.edata['score']
+```
+
+```python
+class MLPPredictor(nn.Module):
+    def __init__(self, in_features, out_classes):
+        super().__init__()
+        self.W = nn.Linear(in_features * 2, out_classes)
+
+    def apply_edges(self, edges):
+        h_u = edges.src['h']
+        h_v = edges.dst['h']
+        score = self.W(torch.cat([h_u, h_v], 1))
+        return {'score': score}
+
+    def forward(self, graph, h):
+        # h contains the node representations computed from the GNN defined
+        # in the node classification section (Section 5.1).
+        with graph.local_scope():
+            graph.ndata['h'] = h
+            graph.apply_edges(self.apply_edges)
+            return graph.edata['score']
+```
+
+
+
 **apply_nodes()函数的功能**
 
 更新节点的信息，默认更新所有节点的信息
@@ -361,7 +398,27 @@ def reduce_func(nodes):
 
 raw data：原始数据
 
+在4.6中有讲当label为字符串时怎么把对应的label转为数字，比如positive、negative转为1，0
 
+在4.6中有讲从外部读取图数据的yaml文件的写法
+
+# 五、
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 还不懂得地方
+
+异质图上的节点分类任务，还有消息传递过程
 
 
 
