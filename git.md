@@ -20,7 +20,7 @@
 2.本地仓库
    a.初始化本地仓库  git init
    b.将文件添加到本地仓库   
-           git add 赵智育.txt
+           git add x.txt
    c.将添加好的文件进行提交本地仓库
             git commit  -m "提交文本"
    d.将本地仓库的内容推送到云仓库上

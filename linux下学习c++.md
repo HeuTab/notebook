@@ -773,6 +773,89 @@ delete []psa2;
 
 
 
+## 6.1 function
+
+头文件的知识
+
+![](./image/0007.jpg)
+
+```
+#ifndef _DRAW_H_：这里ifdef是一个宏定义，后面的是名字，可以任意指定
+在这里应用
+#ifndef
+#define
+...
+#endif
+这种格式是为了防止重复定义函数
+```
+
+```
+实参和形参的问题：在6.2节里面讲了
+我的理解是：只要碰到一个定义变量的符号就可以认为在内存中找了一块空间来copy存储了另外一份变量，与原来的变量值相同 但是地址不同
+```
+
+## 6.2 references：引用
+
+```
+可以理解为：为变量起一个别名
+int num = 0;
+int &num_ref = num;
+此时num_ref就可以当作num来看待了，他们在内存中指向的是同一块地址
+相当于一个起别名的操作
+```
+
+```
+需要注意的地方就是：在定义引用的时候就要初始化
+int &num_ref;//error
+```
+
+```
+引用相较于指针来说更加安全
+```
+
+```
+为了防止在函数中修改引用的变量，可以加const修饰
+float matrix_max(const struct Matrix & mat)
+```
+
+## 6.3 inline function
+
+```
+宏定义虽然灵活但是易于出错，所以在C++中不太鼓励使用宏
+
+#define MAX_MACRO(a,b) (a) > (b) ? (a) : (b)
+```
+
+```
+inline函数：
+在程序中调用函数的话是会有部分内存消耗的，比如会在调用函数之前存储当前的状态，因此如果我们的函数过于简单并且频繁调用的话，还不如不调用；因此，inline函数产生了：
+inline float max(float a,float b){}
+使用inline的话，会建议编译器使用inline的方式来编译函数，但是也只是个建议，编译器可能不会执行。编译器会根据函数的复杂度来选择，根据整体的情况来选择
+```
+
+## 7.1 default arguments
+
+```
+argument和parameter的区别：虽然都是参数的意思
+float norm(float x, float y, float z = 0);
+在这里:0是argument，z是parameter
+```
+
+```
+float norm(float x, float y, float z)
+float norm(float x, float y, float z = 0)
+float norm(float x, float y = 0, float z)
+在定义默认参数的时候要从尾部开始默认定义，而且可以理解为默认参数是可以叠加的，比如上边第二行定义的z=0，它同样在第三个函数起作用 第三个函数也默认z为0
+```
+
+7.1看完了
+
+
+
+
+
+
+
 # 目前还未搞懂的地方
 
 int8_t、int16_t的意思

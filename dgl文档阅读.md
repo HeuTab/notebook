@@ -402,9 +402,18 @@ raw data：原始数据
 
 在4.6中有讲从外部读取图数据的yaml文件的写法
 
-# 五、
+# 五、训练GNN
 
+```
+src.repeat_interleave(k)
 
+src是一个列表，k为一个整数
+这行代码的意思就是得到src中每个元素重复k次之后的列表
+
+>>> x = torch.tensor([1, 2, 3])
+>>> x.repeat_interleave(2)
+tensor([1, 1, 2, 2, 3, 3])
+```
 
 
 
