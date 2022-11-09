@@ -356,6 +356,10 @@ uint8_t
 uint16_t
 uint32_t
 uint64_t
+
+
+具体区别可以看以下链接
+https://blog.csdn.net/yz930618/article/details/84785970?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166797844316782390514060%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=166797844316782390514060&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-1-84785970-null-null.142^v63^opensearch_v2,201^v3^control_2,213^v2^t3_control1&utm_term=int8_t%E3%80%81int16_t&spm=1018.2226.3001.4187
 ```
 
 ```
@@ -413,7 +417,7 @@ if(fabs(f1-f2) < FLT_EPSILON)//good
 ### const type qualifier
 
 ```
-const float PI = 3.1415923f;
+const float PI = 3.1415926f;
 必须在定义的时候进行初始化；不能修改
 ```
 
@@ -705,12 +709,13 @@ free(p);
 ```
 
 ```
+浪费情况2：
 void foo()
 {
 	int *p = (int *) malloc (sizeof(int));
 	return;
 }
-当return之后，p为局部变量，return之后，p就消失了，作用域就到此为止了，这段内存也无法回收了，造成了内存泄漏
+p为函数的局部变量，当return之后，p就消失了，作用域就到此为止了，这段内存也无法回收了，造成了内存泄漏
 ```
 
 ## 5.5 allocate memory C++
@@ -848,13 +853,129 @@ float norm(float x, float y = 0, float z)
 在定义默认参数的时候要从尾部开始默认定义，而且可以理解为默认参数是可以叠加的，比如上边第二行定义的z=0，它同样在第三个函数起作用 第三个函数也默认z为0
 ```
 
-7.1看完了
+
+
+## 7.2 function templates
+
+```
+int sum(int a,int b)
+{
+	cout << "int:" << a+b << endl;
+}
+
+float sum(float a,float b)
+{
+	cout << "float:" << a+b << endl;
+}
+
+double sum(double a,double b)
+{
+	cout << "double:" << a+b << endl;
+}
+
+此时的函数重载部分是相似的，如果一处改动需要改动其他的
+```
+
+```c++
+template<typename T>
+T sum(T x,T y)
+{
+	cout << "The input type is " << typeid(T).name() << endl;
+	return x + y;
+}
+//instantiates sum<double>(double, double)
+template double sum<double>(double, double);
+
+//instantiates sum<char>(char, char), template argument deduced
+template double sum<>(char, char);
+
+//instantiates sum<int>(int, int), template argument deduced
+template int sum(int, int);
+上面是显式的实例化，还可以进行隐式的实例化
+
+模板只是一个虚拟的概念，编译器一定要生成一个实实在在的函数，所以一定要实例化。
+```
+
+```c++
+隐式实例化的例子
+template<typename T>
+T product(T x,T y)
+{
+	cout << "The input type is " << typeid(T).name() << endl;
+	return x + y;
+}
+//Implicitly instantiates product<int>(int, int)
+cout << "product = " << product<int>(2.2f, 3.0f) << endl;
+//上面因为我已经制定了int型的实现，所以即使我输入的是浮点数也会调用int型实现，下面根据2.2f判断为是浮点数，所以会调用float型实现
+//Implicitly instantiates productt<float>(float, float)
+cout << "product = " << product(2.2f, 3.0f) << endl;
+```
+
+```c++
+//实例化不需要函数体和<>，特例化都需要
+template<>
+Point sum<Point>(Point pt1, Point pt2)
+{
+	cout << "The input type is " << typeid(pt1).name() << endl;
+	Point pt;
+	pt.x = pt1.x + pt2.x;
+	pt.y = pt1.y + pt2.y;
+	return pt;
+}
+```
+
+## 7.3 function pointer(用的不是很多)
+
+```
+函数指针是一个指针，指向一个函数，原来的指针是指向数据
+
+float norm_l1(float x, float y);
+float norm_l2(float x, float y);
+float (*norm_ptr)(float x, float y);
+
+norm_ptr = norm_l1;//Pointer norm_ptr is pointing to norm_l1
+norm_ptr = &norm_l2;//Pointer norm_ptr is pointing to norm_l2
+
+//如何用指针调用函数
+float len1 = norm_ptr(-3.0f, 4.0f);//function invoked
+float len2 = (*norm_ptr)(-3.0f, 4.0f);//function invoked
+```
+
+```
+函数指针的另外一个用处就是：把函数指针作为一个参数传入另外一个函数中
+比如在对结构体数组进行排序时，需要指定要按什么标准进行排序
+
+void qsort(void *ptr,size_t count, size_t size, int (*comp)(const void *, const void *));
+```
+
+```c++
+//函数引用的例子
+#include<iostream>
+#include<cmath>
+
+using namespace std;
+
+float norm_l1(float x, float y);//declaration
+float norm_l2(float x, float y);//declaration
+float (&norm_ref)(float x, float y);//norm_ref is a function reference
+
+int main()
+{
+	cout << "L1 norm of (-3,4) = " << norm_ref(-3, 4) <<endl;
+	return 0;
+}
+
+float norm_l1(float x, float y)
+{
+	return fabs(x) + fabs(y);
+}
+```
 
 
 
 
 
-
+8.1
 
 # 目前还未搞懂的地方
 
