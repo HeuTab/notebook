@@ -264,7 +264,7 @@ int main()
 ```
 mul.hpp
 
-#pragma once（这是一个预处理指令）
+#pragma once（这是一个预处理指令）表示我这个头文件只能被include一次，不能重复include
 
 int mul(int a,int b);
 ```
@@ -973,15 +973,180 @@ float norm_l1(float x, float y)
 
 
 
+## 8.1 seedup program
+
+在视频8.2节中讲了怎么加速程序计算
+
+整个第八节都是讲怎么优化程序的，如何让程序计算的更快
 
 
-8.1
+
+## 9.1 class
+
+```c++
+//此部分代码主要帮助理解“::”的作用，目前理解来看，::前面的是一个类，后面的就是一个方法名
+class Student
+{
+	private:
+		char name[4];
+		int born;
+		bool male;
+	public:	
+		void setName(const char *s){
+			strncpy(name, s, sizeof(name));
+		}
+		void setBorn(int b){
+			born = b;
+		}
+		void setGender(bool isMale);
+		void printInfo();
+};
+inline void Student::setGender(bool isMale)
+{
+	male = isMale;
+}
+void Student::printInfo()
+{
+	cout << "Name: " << name << endl;
+	cout << "Born in " << born << endl;
+	cout << "Gender: " << (male ? "Male" : "Female") << endl;
+}
+```
+
+
+
+```
+使用#include<student.hpp>和使用#include"student.hpp"的区别：
+使用<>时编译器从编译器指定的include路径来去找这些头文件
+使用""除了从编译器指定目录寻找还从当前目录寻找(当前目录是指当前cpp文件的目录)
+```
+
+## 9.2 constructors and destructors(构造函数和析构函数)
+
+```
+申请空间->调用构造函数
+构造函数必须和类名相同并且没有返回值
+```
+
+```c++
+class Student
+{
+	private:
+		//...
+	public:
+		Student(){
+			name[0] = 0;
+			born = 0;
+			male = false;
+		}
+		Student(const char * initName, int initBorn, bool isMale){
+			setName(initName);
+			born = initBorn;
+			male = isMale;
+		}
+		//上面的也可以写成下面的这种形式
+		Student(const char * initName):born(0),male(true)
+		{
+			setName(initName);
+		}
+}
+```
+
+```c++
+//类的初始化方式
+Student hh;
+
+Student li("LI");
+li.printInfo();
+
+Student xue = Student("ZHOU",2000,true);
+xue.printInfo();
+
+Student *zhou = new Student("zhou",2001,true);
+zhou->printInfo();
+delete zhou;
+```
+
+```
+析构函数不能重载，只能有一个
+常用于释放内存、关闭文件、断掉网络等等
+定义方式为：~类名
+```
+
+```
+上文中Student *zhou = new Student("zhou",2001,true);
+这里是动态申请来的，不会调用析构函数，需要自己delete
+
+比如在上面的代码中如果我将name定义为：
+name = new char[1024];
+
+那么我需要在析构函数中写如下内容：
+~Student()
+{
+	delete []name;
+}
+```
+
+```
+注意点：
+只要new的时候是个数组，那么delete的时候就要加[]
+```
+
+## 9.3 this
+
+```
+void setBorn(int born)
+{
+	this->born = born;
+}
+```
+
+## 9.4 const and static members
+
+```
+#define VALUE 100
+
+const int value = 100;
+const int * p_int;//这个和下面这个是一样的，指针指向的内容不能透过指针去修改
+int const * p_int;
+
+int * const p_int;//指针指向的内容可以修改，但是我指针这个地址不能修改，指针一定指到那个位置
+
+void func(const int *);
+void func(const int &);
+```
+
+```
+class Student
+{
+	private:
+		const int BMI = 24;
+		//...
+	public:
+		int getBorn() const//这里需要注意const不能放到int前面，因为如果放到前面就相当于返回一个const int类型的值了
+		//用const修饰的成员函数，不能修改成员变量
+		{
+			born++;//不可以，原因如上
+			return born;
+		}
+}
+```
+
+static
+
+
+
+
+
+
 
 # 目前还未搞懂的地方
 
 int8_t、int16_t的意思
 
 size_t：表示一个很大的整数？
+
+char *的理解方式
 
 # 杂
 
