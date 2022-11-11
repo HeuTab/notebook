@@ -1134,9 +1134,210 @@ class Student
 
 static
 
+```
+static members are not bound to class instances
+静态成员变量和成员函数是不绑定在某个示例（对象）上的，不管你有几个对象，我的静态成员只有1个，即使你没有对象，我也有我的静态成员
+
+在类内只进行声明，在类外进行定义
+```
+
+```c++
+class Student
+{
+	private:
+		static size_t student_total;//declaration only
+    	//inline static size_t student_total = 0;//C++17,definition outside isn't needed
+	public:
+		Student()
+		{
+			student_total++;
+		}
+		~Student()
+		{
+			student_total--;
+		}
+		static size_t getTotal() {return student_total;}
+}
+//definition it here
+size_t Student::student_total = 0;
+
+//静态成员函数可以通过以下方式调用
+Student::getTotal()//说明不管有几个对象，该函数都是存在的
+```
+
+## 10.1 operator overloading
+
+```c++
+class MyTime
+{
+	private:
+		int hours;
+		int minutes;
+	public:
+		MyTime():hours(0),minutes(0){}
+		MyTime(int h, int m): hours(h), minutes(m){}
+		
+		MyTime operator+(const MyTime & t) const
+		{
+			MyTime sum;
+			sum.minutes = this->minutes + t.minutes;
+			sum.hours = this->hours + t.hours;
+			
+			sum.hours += sum.minutes / 60;
+			sum.minutes %= 60;
+			
+			return sum;
+		}
+		
+		MyTime operator+(int m) const
+		{
+			MyTime sum;
+			sum.minutes = this->minutes + m;
+			sum.hours = this->hours;
+			sum.hours += sum.minutes / 60;
+			sum.minutes %= 60;
+			return sum;
+		}
+		
+		MyTime operator+(const std::string str) const
+		{
+			MyTime sum = *this;
+			if(str=="one hour")
+				sum.hours = this->hours + 1;
+			else
+				std::cerr << "Only \"one hour\" is supported." << std::endl;
+			return sum;
+		}
+};
+```
+
+## 10.2 friend functions(友元函数)
+
+```
+在上面的例子中，mytime+20可以运行，而20+mytime却不能运行，所以提出了友元函数
+
+
+Friend functions:
+	1.Declare in a class body
+	2.Granted class access to members(including private members)
+	3.But not members
+```
+
+写法：
+
+```
+写法1：
+class MyTime
+{
+	// ...
+	pulic:
+		friend MyTime operator+(int m, const MyTime & t)
+		{
+			return t + m;
+		}
+}
+
+写法2：
+class MyTime
+{
+	// ...
+	pulic:
+		friend MyTime operator+(int m, const MyTime & t)
+};
+MyTime operator+(int m, const MyTime & t)
+{
+	return t + m;
+}
+```
+
+<<运算符重载
+
+```
+But in (cout << t1;), the first operand is std::ostream, not MyTime.
+To modify the definition of std::ostream?No！
+Use a friend function
+
+friend std::ostream & operator<<(std::ostream & os, const MyTime & t)
+{
+	std::string str = std::to_string(t.hours)+" hours and "+std::to_string(t.minutes)+" minutes.";
+	os << str;
+	return os;
+}
+friend std::istream & operator>>(std::istream & is, MyTime & t)
+{
+	is >> t.hours >> t.minutes;
+	t.hours += t.minutes / 60;
+	t.minutes %= 60;
+	return is;
+}
+```
+
+operator type()
+
+```
+//implicit conversion
+operator int() const
+{
+	return this->hours * 60 + this->minutes;
+}
+//explicit conversion:加了explicit表示 不可以进行隐式的类型转换，必须进行显式的类型转换
+explicit operator float() const
+{
+	return float(this->hours * 60 + this->minutes);
+}
+
+MyTime t1(1, 20);
+int minutes = t1;
+float f = float(t1);//如果进行浮点型转换必须加float，这里是和上面explicit对应的
+```
 
 
 
+```
+MyTime & operator=(int m)
+{
+	this->hours = 0;
+	this->minutes = m;
+	this->hours = this->minutes / 60;
+	this->minutes %= 60;
+	return *this;
+}
+
+
+MyTime t = 70;这种情况执行构造函数
+MyTime t;
+t = 80;这种情况执行重载的函数，进行赋值
+```
+
+自增和自减运算符重载
+
+```
+//prefix increment ++放在前面,++i
+MyTime& operator++()
+{
+	this->minutes++;
+	this->hours += this->minutes / 60;
+	this->minutes = this->minutes % 60;
+	return *this;
+}
+//postfix increment ++放在后面,i++
+MyTime operator++(int)
+{
+	MyTime old = *this;//keep the old value
+	operator++();//prefix increment
+	return old;
+}
+```
+
+可以进行重载的运算符
+
+![](./image/0008.jpg)
+
+
+
+
+
+11.1
 
 
 
@@ -1146,7 +1347,9 @@ int8_t、int16_t的意思
 
 size_t：表示一个很大的整数？
 
-char *的理解方式
+char *指向字符串的理解
+
+函数返回值里包含&引用，怎么理解
 
 # 杂
 
