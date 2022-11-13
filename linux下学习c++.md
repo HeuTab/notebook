@@ -1335,11 +1335,146 @@ MyTime operator++(int)
 
 
 
+## 11.1 default constructors
+
+```
+copy constructors:
+MyTime::MyTime(MyTime & t){...}
+
+copy assignment:赋值操作
+MyTime & MyTime::operator=(MyTime & ){...}
 
 
-11.1
+MyTime t1(1, 59);
+MyTime t2 = t1;//copy constructor
+t2 = t1;//copy assignment
+```
+
+## 11.2 an example
+
+```
+class MyString
+{
+	int buf_len;
+	char * characters;
+	public:
+		MyString(int buf_len = 64, const char * data = NULL)
+		{
+			this->buf_len = 0;
+			this->characters = NULL;
+			create(buf_len, data);
+		}
+		~MyString()
+		{
+			delete []this->characters;
+		}
+		....
+		bool create(int buf_len, const char * data)
+		{
+			this->buf_len = buf_len;
+			
+			if(this->buf_len != 0)
+			{
+				this->characters = new char(this->buf_len){};
+				if(data)
+					strncpy(this->characters, data, this->buf_len);
+			}
+			
+			return true;
+		}
+}
+```
+
+![](./image/0009.png)
+
+```
+存在的问题：1.存在内存重复释放问题，比如我在str1里已经将内存进行释放了，我在str2里又释放了，所以会出现问题。2.存在内存泄漏问题，在初始化str3的时候申请的内存没有被释放
+
+```
+
+## 11.3 hard copy（上面问题的解决方式）
+
+```
+C++提供的默认的copy constructor出了问题，把指针直接进行了赋值，所以要实现自定义的拷贝构造函数。
+解决方法：让所有的对象都有一块自己的内存，不再去分享数据
+
+MyString::MyString(const MyString & ms)
+{
+	this->buf_len = 0;
+	this->characters = NULL;
+	create(ms.buf_len, ms.characters);
+}
+create()函数会先释放内存然后再重新申请一块内存
+保证了this->characters将不会指向ms.characters
+```
+
+```
+在赋值运算符的时候有问题，默认的运算符重载进行了进行了两个变量的赋值
+MyString & operator=(const MyString &ms)
+{
+	create(ms.buf_len, ms.characters);
+	return *this;
+}
+```
+
+```
+bool create(int buf_len, const char * data)
+{
+	release();
+	
+	this->buf_len = buf_len;
+	
+	if(this->buf_len != 0){
+		this->characters = new char(this->buf_len){};
+	}
+	if(data)
+		strncpy(this->characters, data, this->buf_len);
+		
+	return true;
+}
+bool release()//如果我有内存那我就把他释放掉
+{
+	this->buf_len = 0;
+	if(this->characters!=NULL){
+		delete []this->characters;
+		this->characters = NULL;
+	}
+	return 0;
+}
+```
+
+## 11.4 smart pointers(智能指针)
+
+使用智能指针可以只管申请内存，不用管释放内存
+
+```
+std::shared_ptr：这个指针可以多个指针指向同一个对象
+第一种：采用构造函数方式创建
+std::shared_ptr<MyTime> mt1(new MyTime(10));
+std::shared_ptr<MyTime> mt2 = mt1;
+
+第二种：采用make_shared函数创建，后面的(1,70)是MyTime的构造函数的参数
+auto mt1 = std::make_shared<MyTime>(1, 70);
+上面的auto == std::shared_ptr<MyTime>
+
+std::shared_ptr<MyTime> mt0 = new MyTime(0, 70);
+MyTime * mt1 = std::make_shared<MyTime>(1, 70);
+上面这两种都是错误的，智能指针和普通的指针不能相互赋值
+```
+
+```
+std::unique_ptr：这个指针不允许其他指针指向它，只能有一个指针指向它
+std::unique_ptr<MyTime> mt1(new MyTime(10));
+std::unique_ptr<MyTime> mt2 = std::make_unique<MyTime>(80);//C++17
+
+std::unique_ptr<MyTime> mt3 = std::move(mt1);//如果让指针指向对象的话需要用move
+```
 
 
+
+
+
+12.2
 
 # 目前还未搞懂的地方
 
@@ -1365,5 +1500,10 @@ for(int idx = 0;idx < (n);idx++) \
 	
 上面(a)加括号的意义就是防止传入一些运算符之类的东西，影响运算级
 记住在宏里面参数都加括号就行了
+```
+
+```
+fprintf("%s,%d",__FILE__,__LINE__);这样就会输出对应的文件名和行数
+__FUNCTION__会输出对应函数
 ```
 
