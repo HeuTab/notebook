@@ -1214,6 +1214,15 @@ class MyTime
 ## 10.2 friend functions(友元函数)
 
 ```
+友元函数即这个函数是朋友，它可以访问该类的所有成员变量 包含私有成员
+友元函数不是类的成员函数
+
+并且一个友元函数可以在不同的类中进行定义
+```
+
+
+
+```
 在上面的例子中，mytime+20可以运行，而20+mytime却不能运行，所以提出了友元函数
 
 
@@ -1338,8 +1347,11 @@ MyTime operator++(int)
 ## 11.1 default constructors
 
 ```
-copy constructors:
+copy constructors:拷贝构造函数
 MyTime::MyTime(MyTime & t){...}
+调用拷贝构造函数的一般形式为：
+	类名 对象2(对象1);
+	类名 对象2 = 对象1;
 
 copy assignment:赋值操作
 MyTime & MyTime::operator=(MyTime & ){...}
@@ -1392,7 +1404,7 @@ class MyString
 
 ```
 
-## 11.3 hard copy（上面问题的解决方式）
+## 11.3 hard copy（上面问题的解决方式）浅拷贝与深拷贝
 
 ```
 C++提供的默认的copy constructor出了问题，把指针直接进行了赋值，所以要实现自定义的拷贝构造函数。
@@ -1472,9 +1484,28 @@ std::unique_ptr<MyTime> mt3 = std::move(mt1);//如果让指针指向对象的话
 
 
 
+## 12.1 虚函数
+
+能够用到虚函数的场景有：类A继承类B，两个类均实现了某一个函数，我在定义指针的时候，定义方式为：B *p = new A();如果不用虚函数那么就是调用B的函数，如果用虚函数那么就会进行动态绑定，调用A里的函数。
+
+虚函数的作用主要是进行动态绑定，动态绑定和静态绑定的区别如下：
+
+- Static binding: the compiler decides which function to call.
+- Dynamic binding: the called function is decided at runtime.
+
+纯虚函数没有具体的实现，类似于Java中的接口的方法的定义
+
+析构函数一定是虚函数
 
 
-12.2
+
+
+
+
+
+
+
+
 
 # 目前还未搞懂的地方
 
@@ -1485,6 +1516,8 @@ size_t：表示一个很大的整数？
 char *指向字符串的理解
 
 函数返回值里包含&引用，怎么理解
+
+引用的理解
 
 # 杂
 
@@ -1505,5 +1538,40 @@ for(int idx = 0;idx < (n);idx++) \
 ```
 fprintf("%s,%d",__FILE__,__LINE__);这样就会输出对应的文件名和行数
 __FUNCTION__会输出对应函数
+```
+
+# 自己在编写代码中遇到的一些小总结
+
+1.当定义一个类的成员变量的字符串为char *时，在构造函数中进行初始化时需要注意，不能直接this->name = name;目前是这样理解的，name为一个指针，它一定是一个字符串的地址，所以需要用new
+
+```c++
+class student{
+private:
+    int id;
+    int score;
+    char *name;
+public:
+    student(int number):id(number){}
+    student(int id,int score,char *name){
+        this->id = id;
+        this->score = score;
+        this->name = new char [strlen(name)+1];
+        strcpy(this->name, name);
+    }
+};
+```
+
+2.当一个类的成员变量包含指针的时候，如果只是简单地使用拷贝构造函数是不可以的，因为此时会出现两个指针指向同一块地址，然后在释放内存时重复释放的问题
+
+```c++
+Student::Student(const Student& stu)
+{
+    name = new char[strlen(stu.name) + 1];
+    if (name != 0) {
+        strcpy(name, stu.name);
+        score = stu.score;
+    }
+}
+
 ```
 
