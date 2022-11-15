@@ -1499,9 +1499,138 @@ std::unique_ptr<MyTime> mt3 = std::move(mt1);//如果让指针指向对象的话
 
 
 
+## 13.1 template
+
+"Function templates" vs "template functions"函数模板和模板函数的区别
+
+```c++
+//这个是函数模板
+template<typename T>
+T sum(T x, T y)
+{
+	cout << "The input type is " << typeid(T).name() << endl;
+	return x + y;
+}
+```
+
+```c++
+//这个是模板函数
+template double sum<double>(double, double);
+template char sum<>(char, char);
+template int sum(int, int);
+```
+
+类模板
+
+```c++
+template<typename T>
+class Mat
+{
+	size_t rows;
+	size_t cols;
+	T * data;
+	
+	public:
+		Mat(size_t rows, size_t cols):rows(rows), cols(cols)
+		{
+			data = new T[rows * cols * sizeof(T)]{};
+		}
+		~Mat()
+		{
+			delete []data;
+		}
+		T getElement(size_t r, size_t c);
+		bool setElement(size_t r, size_t c, T value);
+}
+
+template class Mat<int>;
+```
+
+**13.2节值得反复看一下**
 
 
 
+类模板的特例化
+
+```
+template<>
+class Mat<int>
+{
+	...
+}
+表示当T为int时，要进行特例化处理
+```
+
+
+
+## 14.1 stream
+
+less管道的操作
+
+```
+./program | less
+./program > output.log
+./program 1> output.log
+./program >> output.log
+./program > /dev/null
+```
+
+```
+./program 2> error.log
+./program > output.log 2> error.log
+./program &> all.log
+./program > all.log 2>&1
+```
+
+
+
+## 15.1 exception
+
+```
+扔出不同的异常 会有不同的部分接住它
+
+float ratio(float a, float b)
+{
+	if(a<0)
+		throw 1;
+	if(b<0)
+		throw 2;
+	if(fabs(a+b)<FLT_EPSILON)
+		throw "Error ....";
+	
+	return (a-b)/(a+b);
+}
+
+try{
+	z = ratio(x,y);
+}catch(const char * msg){
+	...
+}catch(int eid){
+	...
+}catch(...){//这里的...表示上面的异常都不属于，类似于default
+	
+}
+```
+
+```
+void foo() noexcept;//这个noexcept说明这个函数不会抛出异常
+```
+
+```
+nothrow
+第一种：
+tyr{
+	p = new int[length];
+}catch(std::bad_alloc & ba){//如果申请空间不足，会抛出异常
+	cerr << ba.what() << endl;
+}
+d
+//not throw an exception此时代码不会抛出异常，如果申请空间不足，p=null
+p = new(nothrow) int[length];
+if(p==NULL){
+	...
+}
+```
 
 
 
@@ -1511,7 +1640,7 @@ std::unique_ptr<MyTime> mt3 = std::move(mt1);//如果让指针指向对象的话
 
 int8_t、int16_t的意思
 
-size_t：表示一个很大的整数？
+size_t：表示一个很大的整数？解答：size_t相当于无符号的int，表示的数都为非负数
 
 char *指向字符串的理解
 
@@ -1573,5 +1702,13 @@ Student::Student(const Student& stu)
     }
 }
 
+```
+
+3.如果想要禁止默认的拷贝构造和拷贝赋值函数，该怎么办
+
+```
+类名为A
+A(const A&) = delete;
+A& operator=(const A&) = delete;
 ```
 
