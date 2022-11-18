@@ -1624,7 +1624,7 @@ tyr{
 }catch(std::bad_alloc & ba){//如果申请空间不足，会抛出异常
 	cerr << ba.what() << endl;
 }
-d
+第二种：
 //not throw an exception此时代码不会抛出异常，如果申请空间不足，p=null
 p = new(nothrow) int[length];
 if(p==NULL){
