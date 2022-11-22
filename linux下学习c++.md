@@ -134,6 +134,13 @@ add_executable (main main.c ${SRC_LIST} ${SRC_LIST1})
 这里出现了一个新的命令：**include_directories**。该命令是用来向工程添加多个指定头文件的搜索路径，路径之间用空格分隔。
 因为main.c里include了testFunc.h和testFunc1.h，如果没有这个命令来指定头文件所在位置，就会无法编译。当然，也可以在main.c里使用include来指定路径，如下
 
+```c++
+#include "test_func/testFunc.h"
+#include "test_func1/testFunc1.h"
+```
+
+
+
 ## cmake中的正规组织结构
 
 ```
@@ -192,7 +199,7 @@ Makefile会在build目录下生成，然后在build目录下运行make
 
 前面的工程使用了2个CMakeLists.txt文件，最外层的CMakeLists.txt用于掌控全局，使用add_subdirectory来控制其他目录下的CMakeLists.txt的运行。
 
-也可以只用一个CMakeLists.txt问爱你，把最外层的CMakeLists.txt内容改写成下面的内容同时把src目录下面的CMakeLists.txt删除：
+也可以只用一个CMakeLists.txt，把最外层的CMakeLists.txt内容改写成下面的内容同时把src目录下面的CMakeLists.txt删除：
 
 ```
 cmake_minimum_required (VERSION 2.8)
@@ -208,6 +215,107 @@ include_directories (include)
 add_executable (main ${SRC_LIST})
 
 ```
+
+```
+上面的文件结构：
+bin
+build
+CMakeLists.txt
+include
+	testFunc1.h
+	testFunc.h
+src
+	main.c
+	testFunc1.c
+	testFunc.c
+	CMakeLists.txt(删)
+```
+
+## 动态库和静态库的编译控制
+
+```
+文件结构：
+build
+CMakeLists.txt
+lib
+testFunc
+	testFunc.c
+	testFunc.h
+```
+
+```
+cmake_minimum_required (VERSION 3.5)
+
+project (demo)
+
+set (SRC_LIST ${PROJECT_SOURCE_DIR}/testFunc/testFunc.c)
+
+add_library (testFunc_shared SHARED ${SRC_LIST})
+add_library (testFunc_static STATIC ${SRC_LIST})
+
+set_target_properties (testFunc_shared PROPERTIES OUTPUT_NAME "testFunc")
+set_target_properties (testFunc_static PROPERTIES OUTPUT_NAME "testFunc")
+
+set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+```
+
+add_library：生成动态库或静态库(第1个参数指定库的名字；第2个参数决定是动态还是静态，如果没有就默认静态；第3个参数指定生成库的源文件)
+set_target_properties：设置最终生成的库的名称，还有其它功能，如设置库的版本号等等
+LIBRARY_OUTPUT_PATH：库文件的默认输出路径，这里设置为工程目录下的lib目录
+
+前面使用set_target_properties重新定义了库的输出名称，如果不使用set_target_properties也可以，那么库的名称就是add_library里定义的名称，只是连续2次使用add_library指定库名称时（第一个参数），这个名称不能相同，而set_target_properties可以把名称设置为相同，只是最终生成的库文件后缀不同（一个是.so，一个是.a），这样相对来说会好看点。
+
+## 关键字
+
+- find_library: 在指定目录下查找指定库，并把**库的绝对路径**存放到变量里，其第一个参数是变量名称，第二个参数是库名称，第三个参数是HINTS，第4个参数是路径，其它用法可以参考cmake文档
+- target_link_libraries: 把目标文件与库文件进行链接
+
+
+
+## 添加编译选项
+
+```
+cmake_minimum_required (VERSION 2.8)
+
+project (demo)
+
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
+add_compile_options(-std=c++11 -Wall) 
+
+add_executable(main main.cpp)
+```
+
+## 添加控制选项
+
+```
+cmake_minimum_required(VERSION 3.5)
+
+project(demo)
+
+option(MYDEBUG "enable debug compilation" OFF)
+
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
+add_subdirectory(src)
+```
+
+option命令，其第一个参数是这个option的名字，第二个参数是字符串，用来描述这个option是来干嘛的，第三个是option的值，ON或OFF，也可以不写，不写就是默认OFF。
+
+```
+cmake_minimum_required (VERSION 3.5)
+
+add_executable(main1 main1.c)
+
+if (MYDEBUG)
+    add_executable(main2 main2.c)
+else()
+    message(STATUS "Currently is not in debug mode")    
+endif()
+
+```
+
+
 
 
 
@@ -1638,7 +1746,9 @@ if(p==NULL){
 
 # 目前还未搞懂的地方
 
-int8_t、int16_t的意思
+int8_t、int16_t的意思:见下方链接
+
+https://blog.csdn.net/y2385750851/article/details/120594021?ops_request_misc=&request_id=&biz_id=102&utm_term=int64_t&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-5-120594021.nonecase&spm=1018.2226.3001.4187
 
 size_t：表示一个很大的整数？解答：size_t相当于无符号的int，表示的数都为非负数
 
@@ -1712,3 +1822,4 @@ A(const A&) = delete;
 A& operator=(const A&) = delete;
 ```
 
+4.当一个函数的返回值为引用的时候，可以支持连等号
